@@ -388,29 +388,29 @@ class Kinematics():
 
 		return screw_axes, new_joint_T[0], M_list[-1]
     
-    def dh_transform(self, a, alpha, d, theta):
-        A = sp.Matrix([
-            [sp.cos(theta), -sp.sin(theta) * sp.cos(alpha), sp.sin(theta) * sp.sin(alpha), a * sp.cos(theta)],
-            [sp.sin(theta), sp.cos(theta) * sp.cos(alpha), -sp.cos(theta) * sp.sin(alpha), a * sp.sin(theta)],
-            [0, sp.sin(alpha), sp.cos(alpha), d],
-            [0, 0, 0, 1]
-        ])
+    	def dh_transform(self, a, alpha, d, theta):
+		A = sp.Matrix([
+		    [sp.cos(theta), -sp.sin(theta) * sp.cos(alpha), sp.sin(theta) * sp.sin(alpha), a * sp.cos(theta)],
+		    [sp.sin(theta), sp.cos(theta) * sp.cos(alpha), -sp.cos(theta) * sp.sin(alpha), a * sp.sin(theta)],
+		    [0, sp.sin(alpha), sp.cos(alpha), d],
+		    [0, 0, 0, 1]
+		])
         
-        return A
+        	return A
 
-    def Jacobian(self, theta_1, theta_2, theta_3, theta_4, theta_5, theta_6, theta_7)
+    	def Jacobian(self, theta_1, theta_2, theta_3, theta_4, theta_5, theta_6, theta_7)
 
-	    # Defining angles symbolically
-	    theta1 = sp.symbols('theta1')
-	    theta2 = sp.symbols('theta2')
-	    theta3 = sp.symbols('theta3')
-	    theta4 = sp.symbols('theta4')
-	    theta5 = sp.symbols('theta5')
-	    theta6 = sp.symbols('theta6')
-	    theta7 = sp.symbols('theta7')
+	    	# Defining angles symbolically
+	    	theta1 = sp.symbols('theta1')
+	    	theta2 = sp.symbols('theta2')
+	    	theta3 = sp.symbols('theta3')
+	    	theta4 = sp.symbols('theta4')
+	    	theta5 = sp.symbols('theta5')
+	    	theta6 = sp.symbols('theta6')
+	    	theta7 = sp.symbols('theta7')
 
-	    # Replace these with the correct DH parameters for the Yaskawa SDA10F robot
-	    dh_params = [
+	    	# Replace these with the correct DH parameters for the Yaskawa SDA10F robot
+	    	dh_params = [
 	        {'a': 0, 'alpha': np.pi/2, 'd': 0, 'theta': theta1},
 	        {'a': 252.5, 'alpha': 0, 'd': 0, 'theta': theta2},
 	        {'a': 180, 'alpha': np.pi/2, 'd': 0, 'theta': theta3},
@@ -418,32 +418,34 @@ class Kinematics():
 	        {'a': 180, 'alpha': np.pi/2, 'd': 0, 'theta': theta5},
 	        {'a': 0, 'alpha': np.pi/2, 'd': 0, 'theta': theta6},
 	        {'a': 155, 'alpha': 0, 'd': 0, 'theta': theta7},
-	    ]
+	    	]
 
-	    joint_angles = sp.symbols('q1:8')  # Assuming a 7-DOF robot
-	    joint_positions = []
-	    z_vectors = []
+	    	joint_angles = sp.symbols('q1:8')  # Assuming a 7-DOF robot
+	    	joint_positions = []
+	    	z_vectors = []
 
-	    T_base_i = sp.eye(4)
-	    for i, params in enumerate(dh_params):
-	        T_i_minus_1_i = self.dh_transform(params['a'], params['alpha'], params['d'], joint_angles[i] + params['theta'])
-	        T_base_i = T_base_i * T_i_minus_1_i
-	        joint_positions.append(T_base_i[:3, 3])
-	        z_vectors.append(T_base_i[:3, 2])
+	    	T_base_i = sp.eye(4)
+	    	
+		for i, params in enumerate(dh_params):
+	        	T_i_minus_1_i = self.dh_transform(params['a'], params['alpha'], params['d'], joint_angles[i] + params['theta'])
+	        	T_base_i = T_base_i * T_i_minus_1_i
+	        	joint_positions.append(T_base_i[:3, 3])
+	        	z_vectors.append(T_base_i[:3, 2])
 
-	    end_effector_position = joint_positions[-1]
+	    	end_effector_position = joint_positions[-1]
 
-	    J_v = []
-	    J_w = []
-	    for i in range(len(joint_angles)):
-	        J_vi = z_vectors[i].cross(end_effector_position - joint_positions[i])
-	        J_wi = z_vectors[i]
-	        J_v.append(J_vi)
-	        J_w.append(J_wi)
+	    	J_v = []
+	    	J_w = []
+	    	
+		for i in range(len(joint_angles)):
+	        	J_vi = z_vectors[i].cross(end_effector_position - joint_positions[i])
+	        	J_wi = z_vectors[i]
+	        	J_v.append(J_vi)
+	        	J_w.append(J_wi)
 
 		Jacobian = sp.Matrix(J_v + J_w).transpose()
 		
-		# ???? Just returning Jacobian is okay? 
+		# Is it okay to only return the Jacobian?
    		return Jacobian
     
     
