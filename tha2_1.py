@@ -411,13 +411,13 @@ class Kinematics():
 
 	    # Replace these with the correct DH parameters for the Yaskawa SDA10F robot
 	    dh_params = [
-	        {'a': 0, 'alpha': np.pi/2, 'd': 0, 'theta': theta1},
-	        {'a': 252.5, 'alpha': 0, 'd': 0, 'theta': theta2},
-	        {'a': 180, 'alpha': np.pi/2, 'd': 0, 'theta': theta3},
-	        {'a': 0, 'alpha': np.pi/2, 'd': 0, 'theta': theta4},
-	        {'a': 180, 'alpha': np.pi/2, 'd': 0, 'theta': theta5},
-	        {'a': 0, 'alpha': np.pi/2, 'd': 0, 'theta': theta6},
-	        {'a': 155, 'alpha': 0, 'd': 0, 'theta': theta7},
+		{'a': 0, 'alpha': np.pi/2, 'd': 0, 'theta': theta1},
+		{'a': 252.5, 'alpha': 0, 'd': 0, 'theta': theta2},
+		{'a': 180, 'alpha': np.pi/2, 'd': 0, 'theta': theta3},
+		{'a': 0, 'alpha': np.pi/2, 'd': 0, 'theta': theta4},
+		{'a': 180, 'alpha': np.pi/2, 'd': 0, 'theta': theta5},
+		{'a': 0, 'alpha': np.pi/2, 'd': 0, 'theta': theta6},
+		{'a': 155, 'alpha': 0, 'd': 0, 'theta': theta7},
 	    ]
 
 	    joint_angles = sp.symbols('q1:8')  # Assuming a 7-DOF robot
@@ -426,24 +426,25 @@ class Kinematics():
 
 	    T_base_i = sp.eye(4)
 	    for i, params in enumerate(dh_params):
-	        T_i_minus_1_i = self.dh_transform(params['a'], params['alpha'], params['d'], joint_angles[i] + params['theta'])
-	        T_base_i = T_base_i * T_i_minus_1_i
-	        joint_positions.append(T_base_i[:3, 3])
-	        z_vectors.append(T_base_i[:3, 2])
+		T_i_minus_1_i = self.dh_transform(params['a'], params['alpha'], params['d'], joint_angles[i] + params['theta'])
+		T_base_i = T_base_i * T_i_minus_1_i
+		joint_positions.append(T_base_i[:3, 3])
+		z_vectors.append(T_base_i[:3, 2])
 
 	    end_effector_position = joint_positions[-1]
 
 	    J_v = []
 	    J_w = []
 	    for i in range(len(joint_angles)):
-	        J_vi = z_vectors[i].cross(end_effector_position - joint_positions[i])
-	        J_wi = z_vectors[i]
-	        J_v.append(J_vi)
-	        J_w.append(J_wi)
+		J_vi = z_vectors[i].cross(end_effector_position - joint_positions[i])
+		J_wi = z_vectors[i]
+		J_v.append(J_vi)
+		J_w.append(J_wi)
 
 		Jacobian = sp.Matrix(J_v + J_w).transpose()
-# ???? Just returning Jacobian is okay? 
-    return Jacobian
+		
+	# ???? Just returning Jacobian is okay?
+	return Jacobian
     
     
     def redundancy_resolution(robot_k, joint_angles, joint_loc, joint_axes, joint_type, v_e, omega, k_0):
